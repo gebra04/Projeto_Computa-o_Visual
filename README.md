@@ -1,1 +1,1 @@
-# Projeto_Computa-o_Visual
+# Projeto_Computação_Visual
