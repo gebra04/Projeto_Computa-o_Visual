@@ -8,7 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
-#include "../Projeto/lib/utils.h"
+#include "../Projeto_Computacao_Visual/lib/utils.h"
 
 /* Globals */
 /** Window width. */
@@ -25,6 +25,9 @@ unsigned int VBO;
 
 /** Rotation angle. */
 float angle = 0.0f;
+float angle_x = 0.0f;
+float angle_y = 0.0f;
+float angle_z = 0.0f;
 /** Rotation increment. */
 float angle_inc = 0.5f;
 
@@ -110,10 +113,11 @@ void display() {
 	glUseProgram(program);
 	glBindVertexArray(VAO);
 
-	const glm::mat4 Rx = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(1.0f, 0.0f, 0.0f));
-	const glm::mat4 Ry = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-	const glm::mat4 Rz = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f));
-  
+	glm::mat4 T;
+  glm::mat4 Rx = glm::rotate(glm::mat4(1.0f), glm::radians(angle_x), glm::vec3(1.0f,0.0f,0.0f));
+  glm::mat4 Ry = glm::rotate(glm::mat4(1.0f), glm::radians(angle_y), glm::vec3(0.0f,1.0f,0.0f));
+  glm::mat4 Rz = glm::rotate(glm::mat4(1.0f), glm::radians(angle_z), glm::vec3(0.0f,0.0f,1.0f));
+
 	glm::mat4 M = Rx*Ry*Rz;
 
 	// Retrieve location of tranform variable in shader.
@@ -177,18 +181,36 @@ void reshape(const int width, const int height) {
 * @param y Mouse y coordinate when key pressed.
 */
 
-void keyboard(const unsigned char key, const int x, const int y) {
-	/* Closing a window using the keyboard. */
-    switch (key) {
-        /* Escape key.*/
-        case 27:
-        case 'q':
-        case 'Q':
-    		glutLeaveMainLoop();
-    		break;
-        case 'x':
-			angle = angle+angle_inc < 180.0f ? angle + angle_inc : 180.0 - angle + angle_inc;
-			break;
+void keyboard(unsigned char key, int x, int y) {
+  /* Closing a window using the keyboard. */
+    switch (key)
+    {
+      /* Escape key.*/
+      case 27:
+              exit(0);
+      /* q key. */
+      case 'q':
+      case 'Q':
+        glutLeaveMainLoop();
+      case 'w':
+        angle_y = ((angle_y+angle_inc) < 180.0f) ? angle_y+angle_inc : 180.0-angle_y+angle_inc;
+        break;
+      case 's':
+        angle_y = ((angle_y-angle_inc) > 180.0f) ? angle_y-angle_inc : 180.0+angle_y+angle_inc;
+        break;
+      case 'a':
+        angle_x = ((angle_x-angle_inc) > 180.0f) ? angle_x-angle_inc : 180.0+angle_x+angle_inc;
+        break;
+      case 'd':
+        angle_x = ((angle_x+angle_inc) < 180.0f) ? angle_x+angle_inc : 180.0-angle_x+angle_inc;
+        break;
+      case 'z':
+        angle_z = ((angle_z-angle_inc) > 180.0f) ? angle_z-angle_inc : 180.0+angle_z+angle_inc;
+        break;
+      case 'x':
+        angle_z = ((angle_z+angle_inc) < 180.0f) ? angle_z+angle_inc : 180.0-angle_z+angle_inc;
+        break;
+                
     }
 }
 
