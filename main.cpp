@@ -29,7 +29,7 @@ float angle_x = 0.0f;
 float angle_y = 0.0f;
 float angle_z = 0.0f;
 /** Rotation increment. */
-float angle_inc = 0.5f;
+float angle_inc = 5.0f;
 
 float x = 0.4f;
 float x_inc = 0.01f;
@@ -193,22 +193,22 @@ void keyboard(unsigned char key, int x, int y) {
       case 'Q':
         glutLeaveMainLoop();
       case 'w':
-        angle_y = ((angle_y+angle_inc) < 180.0f) ? angle_y+angle_inc : 180.0-angle_y+angle_inc;
+        angle_y = ((angle_y+angle_inc) < 360.0f) ? angle_y+angle_inc : 360.0-angle_y+angle_inc;
         break;
       case 's':
-        angle_y = ((angle_y-angle_inc) > 180.0f) ? angle_y-angle_inc : 180.0+angle_y+angle_inc;
+        angle_y = ((angle_y-angle_inc) < 360.0f) ? angle_y-angle_inc : angle_y+angle_inc;
         break;
       case 'a':
-        angle_x = ((angle_x-angle_inc) > 180.0f) ? angle_x-angle_inc : 180.0+angle_x+angle_inc;
+        angle_x = ((angle_x-angle_inc) < 360.0f) ? angle_x-angle_inc : angle_x+angle_inc;
         break;
       case 'd':
-        angle_x = ((angle_x+angle_inc) < 180.0f) ? angle_x+angle_inc : 180.0-angle_x+angle_inc;
+        angle_x = ((angle_x+angle_inc) < 360.0f) ? angle_x+angle_inc : 360.0-angle_x+angle_inc;
         break;
       case 'z':
-        angle_z = ((angle_z-angle_inc) > 180.0f) ? angle_z-angle_inc : 180.0+angle_z+angle_inc;
+        angle_z = ((angle_z-angle_inc) < 360.0f) ? angle_z-angle_inc : angle_z+angle_inc;
         break;
       case 'x':
-        angle_z = ((angle_z+angle_inc) < 180.0f) ? angle_z+angle_inc : 180.0-angle_z+angle_inc;
+        angle_z = ((angle_z+angle_inc) < 360.0f) ? angle_z+angle_inc : 360.0-angle_z+angle_inc;
         break;
                 
     }
