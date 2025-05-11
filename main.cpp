@@ -37,48 +37,6 @@ int mode = 1;
 int md = 1;
 int cond = 0;
 
-const char *vertex_shader_src = R"glsl(
-#version 460 core
-layout(location = 0) in vec3 position;
-layout(location = 1) in vec3 color;
-
-out vec3 vColor;
-
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
-
-void main() {
-	vColor     = color;
-	gl_Position = projection * view * model * vec4(position, 1.0);
-}
-)glsl";
-  
-
-/** Grid */
-unsigned int gridVAO, gridVBO; // Objetos para o grid
-int gridShaderProgram;         // Shader simplificado para o grid
-constexpr float size = 10.0f; // Tamanho do grid (ex.: 10 unidades em cada direção)
-constexpr float step = 1.0f;  // Espaçamento entre linhas
-constexpr int numLines = static_cast<int>(size / step) * 2 + 1; // Número total de linhas
-
-/** Grid shader */
-const char *grid_vertex_code = R"(
-#version 460 core
-layout (location = 0) in vec3 position;
-void main() {
-	gl_Position = vec4(position, 1.0);
-}
-)";
-
-const char *grid_fragment_code = R"(
-#version 460 core
-out vec4 FragColor;
-void main() {
-	FragColor = vec4(0.5, 0.5, 0.5, 1.0);
-}
-)";
-
 /** Vertex shader. */
 const char *vertex_code = "\n"
 "#version 460 core\n"
@@ -148,11 +106,6 @@ void display() {
 
 	/* Clears color buffer to the RGBA defined values. */
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Desenha o grid primeiro (fundo)
-	glUseProgram(gridShaderProgram);
-	glBindVertexArray(gridVAO);
-	glDrawArrays(GL_LINES, 0, numLines * 2 * 2); // Desenha como linhas (GL_LINES)
 
 	glUseProgram(program);
 	glBindVertexArray(VAO);
@@ -248,53 +201,6 @@ void idle() {
 	glutPostRedisplay();
 }
 
-/** 
- * Init grid data.
- *
- * Defines the coordinates for vertices, creates the arrays for OpenGL.
-*/
-void initGridData() {
-	// Cada linha tem 2 vértices (início e fim)
-	float vertices[numLines * 4 * 3]; // 4 linhas (2 horizontais + 2 verticais) * 2 vértices * 3 coordenadas (x,y,z)
-
-	int index = 0;
-	float color[] = {0.5f, 0.5f, 0.5f}; // Cor do grid (cinza)
-
-	// Linhas horizontais (eixo X)
-	for (float y = -size; y <= size; y += step) {
-		vertices[index++] = -size; // x1
-		vertices[index++] = y;     // y1
-		vertices[index++] = 0.0f;  // z1
-		vertices[index++] = size;  // x2
-		vertices[index++] = y;     // y2
-		vertices[index++] = 0.0f;  // z2
-	}
-
-	// Linhas verticais (eixo Y)
-	for (float x = -size; x <= size; x += step) {
-		vertices[index++] = x;      // x1
-		vertices[index++] = -size;  // y1
-		vertices[index++] = 0.0f;   // z1
-		vertices[index++] = x;      // x2
-		vertices[index++] = size;   // y2
-		vertices[index++] = 0.0f;   // z2
-	}
-
-	// Cria um VAO e VBO específicos para o grid
-	glGenVertexArrays(1, &gridVAO);
-	glBindVertexArray(gridVAO);
-
-	glGenBuffers(1, &gridVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, gridVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// Configura o atributo de posição (apenas coordenadas, sem cor)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-	glEnableVertexAttribArray(0);
-
-	glBindVertexArray(0); // Desvincula o VAO
-}
-
 /**
  * Init vertex data.
  *
@@ -388,7 +294,6 @@ void initData() {
 void initShaders() {
 	// Request a program and shader slots from GPU
 	program = createShaderProgram(vertex_code, fragment_code);
-	gridShaderProgram = createShaderProgram(grid_vertex_code, grid_fragment_code);
 }
 
 int main(int argc, char** argv) {
@@ -414,8 +319,6 @@ int main(int argc, char** argv) {
 
 	// Init vertex data for the triangle.
 	initData();
-
-	initGridData(); // Chame esta função após initData()
 
 	// Create shaders.
 	initShaders();  
