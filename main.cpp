@@ -39,7 +39,7 @@ float angle_inc = 0.5f;
 /** Array for storing key status (256 ASCII keys). */
 bool keyStates[256] = {false};
 
-/** Variables for mouse control */
+/** Variables for mouse control. */
 int last_mouse_x = 0;
 int last_mouse_y = 0;
 bool mouse_left_down = false;
@@ -108,66 +108,66 @@ const char *fragment_code = "\n"
 * A simple drawing function that only clears the color buffer.
 */
 void display() {
-		// Clear the background with the color.
-		glClearColor(0.2, 0.3, 0.3, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// Clear the background with the color.
+	glClearColor(0.2, 0.3, 0.3, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Use the program with shaders.
-		glUseProgram(program);
-		glBindVertexArray(VAO);
+	// Use the program with shaders.
+	glUseProgram(program);
+	glBindVertexArray(VAO);
 
-		// Translate matrix.
-		const glm::mat4 To = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-		const glm::mat4 T = glm::translate(glm::mat4(1.0f), glm::vec3(translate_x, translate_y, 0.0f));
+	// Translate matrix.
+	const glm::mat4 To = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	const glm::mat4 T = glm::translate(glm::mat4(1.0f), glm::vec3(translate_x, translate_y, 0.0f));
 
-		// Scale matrix.
-		const glm::mat4 S = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
+	// Scale matrix.
+	const glm::mat4 S = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
 
-		// Rotation matrix.
-		const glm::mat4 Rx = glm::rotate(glm::mat4(1.0f), glm::radians(angle_x), glm::vec3(1.0f,0.0f,0.0f));
-		const glm::mat4 Ry = glm::rotate(glm::mat4(1.0f), glm::radians(angle_y), glm::vec3(0.0f,1.0f,0.0f));
-		const glm::mat4 Rz = glm::rotate(glm::mat4(1.0f), glm::radians(angle_z), glm::vec3(0.0f,0.0f,1.0f));
+	// Rotation matrix.
+	const glm::mat4 Rx = glm::rotate(glm::mat4(1.0f), glm::radians(angle_x), glm::vec3(1.0f,0.0f,0.0f));
+	const glm::mat4 Ry = glm::rotate(glm::mat4(1.0f), glm::radians(angle_y), glm::vec3(0.0f,1.0f,0.0f));
+	const glm::mat4 Rz = glm::rotate(glm::mat4(1.0f), glm::radians(angle_z), glm::vec3(0.0f,0.0f,1.0f));
 
-		// Final matrix.
-		glm::mat4 M = T*Rx*Ry*Rz*S*To;
+	// Final matrix.
+	glm::mat4 M = T*Rx*Ry*Rz*S*To;
 
-		// Retrieve location of transform variable in shader.
-		int loc = glGetUniformLocation(program, "model");
-		glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(M));
+	// Retrieve location of transform variable in shader.
+	int loc = glGetUniformLocation(program, "model");
+	glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(M));
 
-		// Set the cam location.
-		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,0.0f,-5.0f));
-		loc = glGetUniformLocation(program, "view");
-		glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(view));
+	// Set the cam location.
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,0.0f,-5.0f));
+	loc = glGetUniformLocation(program, "view");
+	glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(view));
 
-		// Set the projection.
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), static_cast<float>(win_width)/static_cast<float>(win_height), 0.1f, 100.0f);
-		loc = glGetUniformLocation(program, "projection");
-		glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(projection));
+	// Set the projection.
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), static_cast<float>(win_width)/static_cast<float>(win_height), 0.1f, 100.0f);
+	loc = glGetUniformLocation(program, "projection");
+	glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(projection));
 
-		// Light color.
-		loc = glGetUniformLocation(program, "lightColor");
-		glUniform3f(loc, 1.0, 1.0, 1.0);
+	// Light color.
+	loc = glGetUniformLocation(program, "lightColor");
+	glUniform3f(loc, 1.0, 1.0, 1.0);
 		
-		// Light position.
-		loc = glGetUniformLocation(program, "lightPosition");
-		glUniform3f(loc, 6.0, 0.0, 2.0);
+	// Light position.
+	loc = glGetUniformLocation(program, "lightPosition");
+	glUniform3f(loc, 6.0, 0.0, 2.0);
 		
-		// Camera position.
-		loc = glGetUniformLocation(program, "cameraPosition");
-		glUniform3f(loc, 0.0, 0.0, 5.0);
+	// Camera position.
+	loc = glGetUniformLocation(program, "cameraPosition");
+	glUniform3f(loc, 0.0, 0.0, 5.0);
 
-		// Disable depth test for the hourglass transparent effect.
-		glDepthMask(GL_FALSE);
+	// Disable depth test for the hourglass transparent effect.
+	glDepthMask(GL_FALSE);
 
-		// Draw the hourglass.
-		glDrawArrays(GL_TRIANGLES, 0, 12*3);
+	// Draw the hourglass.
+	glDrawArrays(GL_TRIANGLES, 0, 12*3);
 
-		// Restore depth test.
-		glDepthMask(GL_TRUE);
+	// Restore depth test.
+	glDepthMask(GL_TRUE);
 
-		// Demand to draw to the window.
-		glutSwapBuffers();
+	// Demand to draw to the window.
+	glutSwapBuffers();
 }
 
 /**
@@ -206,10 +206,10 @@ void keyboard(const unsigned char key, const int x, const int y) {
     switch (key) {
     	// Exit the program.
     	case 27:
-			case 'q':
-			case 'Q':
-					glutLeaveMainLoop();
-					break;
+		case 'q':
+		case 'Q':
+			glutLeaveMainLoop();
+			break;
     }
 
 	// Demand OpenGL to redraw scene (call display function).
@@ -228,14 +228,16 @@ void keyboardUp(const unsigned char key, const int x, const int y) {
 }
 
 /**
- * Function for mouse button press.
+ * Mouse function.
+ *
+ * Called to treat pressed buttons.
  *
  * @param button Mouse button pressed.
  * @param state Button state (pressed or released).
  * @param x Mouse x coordinate when button pressed.
  * @param y Mouse y coordinate when button pressed.
  */
-void mouse(int button, int state, int x, int y) {
+void mouse(const int button, const int state, const int x, const int y) {
     if (button == GLUT_LEFT_BUTTON) {
         if (state == GLUT_DOWN) {
             mouse_left_down = true;
@@ -253,26 +255,28 @@ void mouse(int button, int state, int x, int y) {
  * @param x Mouse x coordinate when button pressed.
  * @param y Mouse y coordinate when button pressed.
  */
-void motion(int x, int y) {
+void motion(const int x, const int y) {
     if (mouse_left_down) {
-        int dx = x - last_mouse_x;
-        int dy = y - last_mouse_y;
-        angle_y += dx * 0.5f; // Sensibilidade eixo Y
-        angle_x += dy * 0.5f; // Sensibilidade eixo X
-        // Rotação no eixo Z ao arrastar na diagonal
-        angle_z += (dx - dy) * 0.25f; // Sensibilidade eixo Z
-        last_mouse_x = x;
+        const int dx = x - last_mouse_x;
+        const int dy = y - last_mouse_y;
+
+        angle_y += static_cast<float>(dx) * 0.5f; // Y-axis sensitivity.
+        angle_x += static_cast<float>(dy) * 0.5f; // X-axis sensitivity.
+
+    	last_mouse_x = x;
         last_mouse_y = y;
-        glutPostRedisplay();
+
+    	// Demand OpenGL to redraw scene (call display function).
+    	glutPostRedisplay();
     }
 }
 
 /**
- *	Modified idle function to apply continuous rotation with multiple keys.
+ *	Function to apply continuous rotation with multiple keys.
  */
 void idle() {
-		// Rotation with w, s, a, d, z, x keys.
-		// Rotate the object around the x, y, and z axes in this order.
+	// Rotation with w, s, a, d, z, x keys.
+	// Rotate the object around the x, y, and z axes in this order.
     if (keyStates['w']) angle_x = ((angle_x - angle_inc) < 360.0f) ? angle_x - angle_inc : angle_x + angle_inc;
     if (keyStates['s']) angle_x = ((angle_x + angle_inc) < 360.0f) ? angle_x + angle_inc : 360.0-angle_x + angle_inc;
     if (keyStates['a']) angle_y = ((angle_y - angle_inc) < 360.0f) ? angle_y - angle_inc : angle_y + angle_inc;
@@ -280,18 +284,18 @@ void idle() {
     if (keyStates['z']) angle_z = ((angle_z - angle_inc) < 360.0f) ? angle_z - angle_inc : angle_z + angle_inc;
     if (keyStates['x']) angle_z = ((angle_z + angle_inc) < 360.0f) ? angle_z + angle_inc : 360.0-angle_z + angle_inc;
 
-		// Translation with 8, 2, 4, 6 keys.
-		// Translate the object in the x and y directions.
-		if (keyStates['8']) translate_y = (translate_y + translate_inc) < 1.5f ? translate_y + translate_inc : 1.5f;
-		if (keyStates['2']) translate_y = (translate_y - translate_inc) > -1.5f ? translate_y - translate_inc : -1.5f;
-		if (keyStates['6']) translate_x = (translate_x + translate_inc) < 2.15f ? translate_x + translate_inc : 2.15f;
-		if (keyStates['4']) translate_x = (translate_x - translate_inc) > -2.15f ? translate_x - translate_inc : -2.15f;
+	// Translation with 8, 2, 4, 6 keys.
+	// Translate the object in the x and y directions.
+	if (keyStates['8']) translate_y = (translate_y + translate_inc) < 1.5f ? translate_y + translate_inc : 1.5f;
+	if (keyStates['2']) translate_y = (translate_y - translate_inc) > -1.5f ? translate_y - translate_inc : -1.5f;
+	if (keyStates['6']) translate_x = (translate_x + translate_inc) < 2.15f ? translate_x + translate_inc : 2.15f;
+	if (keyStates['4']) translate_x = (translate_x - translate_inc) > -2.15f ? translate_x - translate_inc : -2.15f;
 
-		// Scale with + and - keys.
-		if (keyStates['+']) scale = scale + scale_inc;
-		if (keyStates['-']) scale = scale - scale_inc;
+	// Scale with + and - keys.
+	if (keyStates['+']) scale = scale + scale_inc;
+	if (keyStates['-']) scale = scale - scale_inc;
 
-		// Demand OpenGL to redraw scene (call display function).
+	// Demand OpenGL to redraw scene (call display function).
     glutPostRedisplay();
 }
 
@@ -301,59 +305,59 @@ void idle() {
  * Defines the coordinates for vertices, creates the arrays for OpenGL.
  */
 void initData() {
-		// Set hourglass vertices.
-		const float vertices[] = {
-			// First pyramid.
-			// First triangle (Cyan).
-			 0.4f,  0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f,  1.000000f, // A
-			-0.4f,  0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f,  1.000000f, // D
-			-0.4f,  0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f,  1.000000f, // C
-			// Second triangle (Cyan).
-			 0.4f,  0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f,  1.000000f, // A
-			-0.4f,  0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f,  1.000000f, // D
-			 0.4f,  0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f,  1.000000f, // B
-			// Third triangle (Cyan).
-			 0.4f,  0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f, -0.707107f,  0.707107f, // A
-			-0.4f,  0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f, -0.707107f,  0.707107f, // C
-			 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.000000f, -0.707107f,  0.707107f, // O
-			// Fourth triangle (Cyan).
-			-0.4f,  0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f,  0.707107f, // C
-			-0.4f,  0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f,  0.707107f, // D
-			 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f,  0.707107f, // O
-			// Fifth triangle (Cyan).
-			 0.4f,  0.4f, -0.4f,  0.0f,  1.0f,  1.0f, -0.000000f, -0.707107f, -0.707107f, // B
-			-0.4f,  0.4f, -0.4f,  0.0f,  1.0f,  1.0f, -0.000000f, -0.707107f, -0.707107f, // D
-			 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f, -0.000000f, -0.707107f, -0.707107f, // O
-			// Sixth triangle (Cyan).
-			 0.4f,  0.4f, -0.4f,  0.0f,  1.0f,  1.0f, -0.707107f,  0.000000f,  0.707107f, // B
-			 0.4f,  0.4f,  0.4f,  0.0f,  1.0f,  1.0f, -0.707107f,  0.000000f,  0.707107f, // A
-			 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f, -0.707107f,  0.000000f,  0.707107f, // O
+	// Set hourglass vertices.
+	const float vertices[] = {
+		// First pyramid.
+		// First triangle (Cyan).
+	  	 0.4f,  0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f,  1.000000f, // A
+		-0.4f,  0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f,  1.000000f, // D
+		-0.4f,  0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f,  1.000000f, // C
+		// Second triangle (Cyan).
+		 0.4f,  0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f,  1.000000f, // A
+		-0.4f,  0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f,  1.000000f, // D
+		 0.4f,  0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f,  1.000000f, // B
+		// Third triangle (Cyan).
+		 0.4f,  0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f, -0.707107f,  0.707107f, // A
+		-0.4f,  0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f, -0.707107f,  0.707107f, // C
+		 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.000000f, -0.707107f,  0.707107f, // O
+		// Fourth triangle (Cyan).
+		-0.4f,  0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f,  0.707107f, // C
+		-0.4f,  0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f,  0.707107f, // D
+		 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f,  0.707107f, // O
+		// Fifth triangle (Cyan).
+		 0.4f,  0.4f, -0.4f,  0.0f,  1.0f,  1.0f, -0.000000f, -0.707107f, -0.707107f, // B
+		-0.4f,  0.4f, -0.4f,  0.0f,  1.0f,  1.0f, -0.000000f, -0.707107f, -0.707107f, // D
+		 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f, -0.000000f, -0.707107f, -0.707107f, // O
+		// Sixth triangle (Cyan).
+		 0.4f,  0.4f, -0.4f,  0.0f,  1.0f,  1.0f, -0.707107f,  0.000000f,  0.707107f, // B
+		 0.4f,  0.4f,  0.4f,  0.0f,  1.0f,  1.0f, -0.707107f,  0.000000f,  0.707107f, // A
+		 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f, -0.707107f,  0.000000f,  0.707107f, // O
 
-			// Second pyramid.
-			// First triangle (Cyan).
-			-0.4f, -0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f, -1.000000f, // H
-			-0.4f, -0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f, -1.000000f, // I
-			 0.4f, -0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f, -1.000000f, // F
-			// Second triangle (Cyan).
-			-0.4f, -0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f, -1.000000f, // H
-			 0.4f, -0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f, -1.000000f, // F
-			 0.4f, -0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f, -1.000000f, // G
-			// Third triangle (Cyan).
-			-0.4f, -0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f, -0.707107f, // H
-			-0.4f, -0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f, -0.707107f, // I
-			 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f, -0.707107f, // O
-			// Fourth triangle (Cyan).
-			-0.4f, -0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f, -0.707107f, -0.707107f, // I
-			 0.4f, -0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f, -0.707107f, -0.707107f, // F
-			 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.000000f, -0.707107f, -0.707107f, // O
-			// Fifth triangle (Cyan).
-			 0.4f, -0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.707107f, -0.707107f, // G
-			-0.4f, -0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.707107f, -0.707107f, // H
-			 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.707107f, -0.707107f, // O
-			// Sixth triangle (Cyan).
-			 0.4f, -0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f,  0.707107, // G
-			 0.4f, -0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f,  0.707107, // F
-			 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f,  0.707107, // O
+		// Second pyramid.
+		// First triangle (Cyan).
+		-0.4f, -0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f, -1.000000f, // H
+		-0.4f, -0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f, -1.000000f, // I
+		 0.4f, -0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f, -1.000000f, // F
+		// Second triangle (Cyan).
+		-0.4f, -0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f, -1.000000f, // H
+		 0.4f, -0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f, -1.000000f, // F
+		 0.4f, -0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.000000f, -1.000000f, // G
+		// Third triangle (Cyan).
+		-0.4f, -0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f, -0.707107f, // H
+		-0.4f, -0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f, -0.707107f, // I
+		 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f, -0.707107f, // O
+		// Fourth triangle (Cyan).
+		-0.4f, -0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f, -0.707107f, -0.707107f, // I
+		 0.4f, -0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.000000f, -0.707107f, -0.707107f, // F
+		 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.000000f, -0.707107f, -0.707107f, // O
+		// Fifth triangle (Cyan).
+		 0.4f, -0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.707107f, -0.707107f, // G
+		-0.4f, -0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.707107f, -0.707107f, // H
+		 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.000000f,  0.707107f, -0.707107f, // O
+		// Sixth triangle (Cyan).
+		 0.4f, -0.4f, -0.4f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f,  0.707107, // G
+		 0.4f, -0.4f,  0.4f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f,  0.707107, // F
+		 0.0f,  0.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.707107f,  0.000000f,  0.707107, // O
 		};
     
     // Vertex array.
@@ -365,15 +369,15 @@ void initData() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-		// Set alpha blending
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// Set alpha blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     // Set coordinate attribute.
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
 
-		// Set color attribute.
+	// Set color attribute.
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
@@ -381,8 +385,8 @@ void initData() {
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), reinterpret_cast<void *>(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-		// Enable depth for 3D.
-		glEnable(GL_DEPTH_TEST);
+	// Enable depth for 3D.
+	glEnable(GL_DEPTH_TEST);
 
     // Unbind Vertex Array Object.
     glBindVertexArray(0);
@@ -394,40 +398,40 @@ void initData() {
  * Compile shaders and create the program.
  */
 void initShaders() {
-		// Request a program and shader slots from GPU
-		program = createShaderProgram(vertex_code, fragment_code);
+	// Request a program and shader slots from GPU
+	program = createShaderProgram(vertex_code, fragment_code);
 }
 
 int main(int argc, char** argv) {
-		// Init glut (always called).
-		glutInit(&argc, argv);
+	// Init glut (always called).
+	glutInit(&argc, argv);
 
-		// Set OpenGL context version to use "Modern OpenGL".
-		glutInitContextVersion(4, 0);
-		glutInitContextProfile(GLUT_CORE_PROFILE);
+	// Set OpenGL context version to use "Modern OpenGL".
+	glutInitContextVersion(4, 0);
+	glutInitContextProfile(GLUT_CORE_PROFILE);
 
-		// Create window with double-buffering, RGBA (RGB with alpha), and depth for 3D figures.
-		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-		glutInitWindowSize(win_width,win_height);
-		glutCreateWindow("CMCO05 - hourglass");
+	// Create window with double-buffering, RGBA (RGB with alpha), and depth for 3D figures.
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+	glutInitWindowSize(win_width,win_height);
+	glutCreateWindow("CMCO05 - hourglass");
 
-		// Init GLEW, an extension loading library for different operating systems.
-		glewExperimental = GL_TRUE;
-		glewInit();
+	// Init GLEW, an extension loading library for different operating systems.
+	glewExperimental = GL_TRUE;
+	glewInit();
 
-		// Init vertex data and shaders.
-		initData();
-		initShaders();  
+	// Init vertex data and shaders.
+	initData();
+	initShaders();
 		
-		// Bind callback functions.
-		glutReshapeFunc(reshape);
-		glutDisplayFunc(display);
-		glutKeyboardFunc(keyboard);
-		glutKeyboardUpFunc(keyboardUp);
-		glutIdleFunc(idle);
-		glutMouseFunc(mouse);
-		glutMotionFunc(motion);
+	// Bind callback functions.
+	glutReshapeFunc(reshape);
+	glutDisplayFunc(display);
+	glutKeyboardFunc(keyboard);
+	glutKeyboardUpFunc(keyboardUp);
+	glutIdleFunc(idle);
+	glutMouseFunc(mouse);
+	glutMotionFunc(motion);
 
-		// Give control to GLUT, main loop that ends when the program ends.
-		glutMainLoop();
+	// Give control to GLUT, main loop that ends when the program ends.
+	glutMainLoop();
 }
