@@ -8,7 +8,6 @@
 #include <glm/gtx/string_cast.hpp>
 #include "../Projeto_Computacao_Visual/lib/utils.h"
 
-/* Globals */
 /** Window width. */
 int win_width  = 800;
 /** Window height. */
@@ -20,6 +19,11 @@ int program;
 unsigned int VAO;
 /** Vertex buffer object. */
 unsigned int VBO;
+
+/** Translate. */
+float translate_x = 0.0f;
+float translate_y = 0.0f;
+float translate_inc = 0.2f;
 
 /** Scale. */
 float scale = 1.0f;
@@ -65,7 +69,7 @@ const char *vertex_code = "\n"
 "    gl_Position = projection * view * model * vec4(position, 1.0);\n"
 "    vNormal = mat3(transpose(inverse(model)))*normal;\n"
 "    vColor = color;\n"
-"	   fragPosition = vec3(model * vec4(position, 1.0));\n"
+"	 fragPosition = vec3(model * vec4(position, 1.0));\n"
 "}\0";
 
 /** Fragment shader. */
@@ -118,16 +122,20 @@ void display() {
 	glUseProgram(program);
 	glBindVertexArray(VAO);
 
+	// Translate matrix.
+	const glm::mat4 To = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	const glm::mat4 T = glm::translate(glm::mat4(1.0f), glm::vec3(translate_x, translate_y, 0.0f));
+
+	// Scale matrix.
+	const glm::mat4 S = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
+
 	// Rotation matrix.
 	const glm::mat4 Rx = glm::rotate(glm::mat4(1.0f), glm::radians(angle_x), glm::vec3(1.0f,0.0f,0.0f));
 	const glm::mat4 Ry = glm::rotate(glm::mat4(1.0f), glm::radians(angle_y), glm::vec3(0.0f,1.0f,0.0f));
 	const glm::mat4 Rz = glm::rotate(glm::mat4(1.0f), glm::radians(angle_z), glm::vec3(0.0f,0.0f,1.0f));
 
-	// Scale matrix.
-	const glm::mat4 S = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
-
 	// Final matrix.
-	glm::mat4 M = Rx*Ry*Rz*S;
+	glm::mat4 M = T*Rx*Ry*Rz*S*To;
 
 	// Retrieve location of transform variable in shader.
 	int loc = glGetUniformLocation(program, "model");
@@ -204,18 +212,31 @@ void keyboard(unsigned char key, int x, int y) {
     keyStates[key] = true;
     // Teclas que não dependem de "segurar" continuam funcionando normalmente
     switch (key) {
-        case 27: // ESC
-            exit(0);
-        case 'q':
-        case 'Q':
-            glutLeaveMainLoop();
-            break;
-        case '+':
-            scale = scale + scale_inc;
-            break;
-        case '-':
-            scale = scale - scale_inc;
-            break;
+			case 27: // ESC
+					exit(0);
+			case 'q':
+			case 'Q':
+				glutLeaveMainLoop();
+				break;
+			case '+':
+				scale = scale + scale_inc;
+				break;
+			case '-':
+				scale = scale - scale_inc;
+				break;
+			// Translate the hourglass.
+    	case '8':
+    		translate_y += translate_inc;
+    		break;
+    	case '5':
+    		translate_y -= translate_inc;
+    		break;
+    	case '6':
+    		translate_x += translate_inc;
+    		break;
+    	case '4':
+    		translate_x -= translate_inc;
+    		break;
     }
     glutPostRedisplay();
 }
@@ -242,60 +263,60 @@ void idle() {
  * Defines the coordinates for vertices, creates the arrays for OpenGL.
  */
 void initData() {
-    // Set hourglass vertices.
-	const float vertices[] = {
-		// First piramid
-		// First triangle (Cyan)
-		0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, 1.000000f, //A
-		-0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, 1.000000f,// D
-		-0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, 1.000000f,// C
-		// Second triangle (Cyan)
-		0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f,  1.000000f,//A
-		-0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.000000f,  1.000000f, // D
-		0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f,  1.000000f,//B
-		// Third triangle (Cyan)
-		0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f, -0.707107f,  0.707107f,//A
-		-0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.000000f, -0.707107f,  0.707107f, // C
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.000000f, -0.707107f,  0.707107f,// O
-		// Fourth triangle (Cyan)
-		-0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.707107f,  0.000000f,  0.707107f, // C
-		-0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f,0.707107f,  0.000000f,  0.707107f, // D
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.707107f,  0.000000f,  0.707107f,// O
-		// Fifth triangle (Cyan)
-		0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f, -0.000000f, -0.707107f, -0.707107f,//B
-		-0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f,-0.000000f, -0.707107f, -0.707107f, // D
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -0.000000f, -0.707107f, -0.707107f,// O
-		// Sixth triangle (Cyan)
-		0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f, -0.707107f,  0.000000f,  0.707107f,//B
-		0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, -0.707107f,  0.000000f,  0.707107f,//A
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -0.707107f,  0.000000f,  0.707107f,// O
+		// Set hourglass vertices.
+		const float vertices[] = {
+			// First piramid
+			// First triangle (Cyan)
+			0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, 1.000000f, //A
+			-0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, 1.000000f,// D
+			-0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, 1.000000f,// C
+			// Second triangle (Cyan)
+			0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f,  1.000000f,//A
+			-0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.000000f,  1.000000f, // D
+			0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f,  1.000000f,//B
+			// Third triangle (Cyan)
+			0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f, -0.707107f,  0.707107f,//A
+			-0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.000000f, -0.707107f,  0.707107f, // C
+			0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.000000f, -0.707107f,  0.707107f,// O
+			// Fourth triangle (Cyan)
+			-0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.707107f,  0.000000f,  0.707107f, // C
+			-0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f,0.707107f,  0.000000f,  0.707107f, // D
+			0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.707107f,  0.000000f,  0.707107f,// O
+			// Fifth triangle (Cyan)
+			0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f, -0.000000f, -0.707107f, -0.707107f,//B
+			-0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f,-0.000000f, -0.707107f, -0.707107f, // D
+			0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -0.000000f, -0.707107f, -0.707107f,// O
+			// Sixth triangle (Cyan)
+			0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f, -0.707107f,  0.000000f,  0.707107f,//B
+			0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, -0.707107f,  0.000000f,  0.707107f,//A
+			0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -0.707107f,  0.000000f,  0.707107f,// O
 
-		// Second piramid
-		// First triangle (Cyan)
-		-0.4f, -0.4f,-0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.000000f, -1.000000f, //H
-		-0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.000000f, -1.000000f, //I
-		0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, -1.000000f,//F
-		// Second triangle (Cyan)
-		-0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.000000f, -1.000000f, //H
-		0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, -1.000000f,//F
-		0.4f, -0.4f, -0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, -1.000000f,//G
-		// Third triangle (Cyan)
-		-0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f,0.707107f,  0.000000f, -0.707107f, //H
-		-0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.707107f,  0.000000f, -0.707107f, //I
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.707107f,  0.000000f, -0.707107f,//O
-		// Fourth triangle (Cyan)
-		-0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.000000f, -0.707107f, -0.707107f, //I
-		0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f, -0.707107f, -0.707107f,//F
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.000000f, -0.707107f, -0.707107f,//O
-		// Fifth triangle (Cyan)
-		0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.707107f, -0.707107f,//G
-		-0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.707107f, -0.707107f, //H
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.707107f, -0.707107f,//O
-		// Sixth triangle (Cyan)
-		0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f, 0.707107f, 0.000000f,  0.707107, //G
-		0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.707107f, 0.000000f,  0.707107, //F
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.707107f, 0.000000f,  0.707107//O
-	};
+			// Second piramid
+			// First triangle (Cyan)
+			-0.4f, -0.4f,-0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.000000f, -1.000000f, //H
+			-0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.000000f, -1.000000f, //I
+			0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, -1.000000f,//F
+			// Second triangle (Cyan)
+			-0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.000000f, -1.000000f, //H
+			0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, -1.000000f,//F
+			0.4f, -0.4f, -0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, -1.000000f,//G
+			// Third triangle (Cyan)
+			-0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f,0.707107f,  0.000000f, -0.707107f, //H
+			-0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.707107f,  0.000000f, -0.707107f, //I
+			0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.707107f,  0.000000f, -0.707107f,//O
+			// Fourth triangle (Cyan)
+			-0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.000000f, -0.707107f, -0.707107f, //I
+			0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f, -0.707107f, -0.707107f,//F
+			0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.000000f, -0.707107f, -0.707107f,//O
+			// Fifth triangle (Cyan)
+			0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.707107f, -0.707107f,//G
+			-0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.707107f, -0.707107f, //H
+			0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.707107f, -0.707107f,//O
+			// Sixth triangle (Cyan)
+			0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f, 0.707107f, 0.000000f,  0.707107, //G
+			0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.707107f, 0.000000f,  0.707107, //F
+			0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.707107f, 0.000000f,  0.707107//O
+		};
     
     // Vertex array.
     glGenVertexArrays(1, &VAO);
@@ -314,7 +335,7 @@ void initData() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
 
-	// Set color attribute.
+		// Set color attribute.	
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
@@ -322,8 +343,8 @@ void initData() {
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), reinterpret_cast<void *>(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-	// Enable depth for 3D.
-	glEnable(GL_DEPTH_TEST);
+		// Enable depth for 3D.
+		glEnable(GL_DEPTH_TEST);
 
     // Unbind Vertex Array Object.
     glBindVertexArray(0);
