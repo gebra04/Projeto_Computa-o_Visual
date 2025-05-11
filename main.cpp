@@ -23,11 +23,11 @@ unsigned int VBO;
 /** Translate. */
 float translate_x = 0.0f;
 float translate_y = 0.0f;
-float translate_inc = 0.2f;
+float translate_inc = 0.01f;
 
 /** Scale. */
 float scale = 1.0f;
-float scale_inc = 0.2f;
+float scale_inc = 0.01f;
 
 /** Rotation angle. */
 float angle = 0.0f;
@@ -205,26 +205,6 @@ void keyboard(const unsigned char key, const int x, const int y) {
 		case 'Q':
 			glutLeaveMainLoop();
 			break;
-    	// Scale the hourglass.
-		case '+':
-			scale = scale + scale_inc;
-			break;
-		case '-':
-			scale = scale - scale_inc;
-			break;
-		// Translate the hourglass.
-    	case '8':
-    		translate_y += translate_inc;
-    		break;
-    	case '2':
-    		translate_y -= translate_inc;
-    		break;
-    	case '6':
-    		translate_x += translate_inc;
-    		break;
-    	case '4':
-    		translate_x -= translate_inc;
-    		break;
     }
 
 	// Demand OpenGL to redraw scene (call display function).
@@ -252,6 +232,12 @@ void idle() {
     if (keyStates['d']) angle_y = ((angle_y + angle_inc) < 360.0f) ? angle_y + angle_inc : 360.0-angle_y + angle_inc;
     if (keyStates['z']) angle_z = ((angle_z - angle_inc) < 360.0f) ? angle_z - angle_inc : angle_z + angle_inc;
     if (keyStates['x']) angle_z = ((angle_z + angle_inc) < 360.0f) ? angle_z + angle_inc : 360.0-angle_z + angle_inc;
+	if (keyStates['8']) translate_y = (translate_y + translate_inc) < 1.5f ? translate_y + translate_inc : 1.5f;
+	if (keyStates['2']) translate_y = (translate_y - translate_inc) > -1.5f ? translate_y - translate_inc : -1.5f;
+	if (keyStates['6']) translate_x = (translate_x + translate_inc) < 2.15f ? translate_x + translate_inc : 2.15f;
+	if (keyStates['4']) translate_x = (translate_x - translate_inc) > -2.15f ? translate_x - translate_inc : -2.15f;
+	if (keyStates['+']) scale = scale + scale_inc;
+	if (keyStates['-']) scale = scale - scale_inc;
 
 	// Demand OpenGL to redraw scene (call display function).
     glutPostRedisplay();
