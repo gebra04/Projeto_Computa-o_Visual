@@ -117,7 +117,7 @@ void display() {
 	glBindVertexArray(VAO);
 
 	// Translate matrix.
-	const glm::mat4 To = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	constexpr glm::mat4 To = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 	const glm::mat4 T = glm::translate(glm::mat4(1.0f), glm::vec3(translate_x, translate_y, 0.0f));
 
 	// Scale matrix.
@@ -210,6 +210,8 @@ void keyboard(const unsigned char key, const int x, const int y) {
 		case 'Q':
 			glutLeaveMainLoop();
 			break;
+    	default:
+    		break;
     }
 
 	// Demand OpenGL to redraw scene (call display function).
@@ -277,23 +279,23 @@ void motion(const int x, const int y) {
 void idle() {
 	// Rotation with w, s, a, d, z, x keys.
 	// Rotate the object around the x, y, and z axes in this order.
-    if (keyStates['w']) angle_x = ((angle_x - angle_inc) < 360.0f) ? angle_x - angle_inc : angle_x + angle_inc;
-    if (keyStates['s']) angle_x = ((angle_x + angle_inc) < 360.0f) ? angle_x + angle_inc : 360.0-angle_x + angle_inc;
-    if (keyStates['a']) angle_y = ((angle_y - angle_inc) < 360.0f) ? angle_y - angle_inc : angle_y + angle_inc;
-    if (keyStates['d']) angle_y = ((angle_y + angle_inc) < 360.0f) ? angle_y + angle_inc : 360.0-angle_y + angle_inc;
-    if (keyStates['z']) angle_z = ((angle_z - angle_inc) < 360.0f) ? angle_z - angle_inc : angle_z + angle_inc;
-    if (keyStates['x']) angle_z = ((angle_z + angle_inc) < 360.0f) ? angle_z + angle_inc : 360.0-angle_z + angle_inc;
+    if (keyStates['w']) angle_x = angle_x - angle_inc < 360.0f ? angle_x - angle_inc : angle_x + angle_inc;
+    else if (keyStates['s']) angle_x = angle_x + angle_inc < 360.0f ? angle_x + angle_inc : 360.0f - angle_x + angle_inc;
+    if (keyStates['a']) angle_y = angle_y - angle_inc < 360.0f ? angle_y - angle_inc : angle_y + angle_inc;
+    else if (keyStates['d']) angle_y = angle_y + angle_inc < 360.0f ? angle_y + angle_inc : 360.0f - angle_y + angle_inc;
+    if (keyStates['z']) angle_z = angle_z - angle_inc < 360.0f ? angle_z - angle_inc : angle_z + angle_inc;
+    else if (keyStates['x']) angle_z = angle_z + angle_inc < 360.0f ? angle_z + angle_inc : 360.0f - angle_z + angle_inc;
 
 	// Translation with 8, 2, 4, 6 keys.
 	// Translate the object in the x and y directions.
-	if (keyStates['8']) translate_y = (translate_y + translate_inc) < 1.5f ? translate_y + translate_inc : 1.5f;
-	if (keyStates['2']) translate_y = (translate_y - translate_inc) > -1.5f ? translate_y - translate_inc : -1.5f;
-	if (keyStates['6']) translate_x = (translate_x + translate_inc) < 2.15f ? translate_x + translate_inc : 2.15f;
-	if (keyStates['4']) translate_x = (translate_x - translate_inc) > -2.15f ? translate_x - translate_inc : -2.15f;
+	if (keyStates['8']) translate_y = translate_y + translate_inc < 1.5f ? translate_y + translate_inc : 1.5f;
+	else if (keyStates['2']) translate_y = translate_y - translate_inc > -1.5f ? translate_y - translate_inc : -1.5f;
+	if (keyStates['6']) translate_x = translate_x + translate_inc < 2.15f ? translate_x + translate_inc : 2.15f;
+	else if (keyStates['4']) translate_x = translate_x - translate_inc > -2.15f ? translate_x - translate_inc : -2.15f;
 
 	// Scale with + and - keys.
 	if (keyStates['+']) scale = scale + scale_inc;
-	if (keyStates['-']) scale = scale - scale_inc;
+	else if (keyStates['-']) scale = scale - scale_inc;
 
 	// Demand OpenGL to redraw scene (call display function).
     glutPostRedisplay();

@@ -39,15 +39,15 @@ int createShaderProgram(const char *vertex_code, const char *fragment_code) {
     glCompileShader(vertex);
     glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
     if (!success) {
-		glGetShaderInfoLog(vertex, 512, NULL, error);
-		std::cout << "ERROR: Shader comilation error: " << error << std::endl;
+		glGetShaderInfoLog(vertex, 512, nullptr, error);
+		std::cout << "ERROR: Shader compilation error: " << error << std::endl;
     }
                 
     glCompileShader(fragment);
     glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
     if (!success) {
-		glGetShaderInfoLog(fragment, 512, NULL, error);
-		std::cout << "ERROR: Shader comilation error: " << error << std::endl;
+		glGetShaderInfoLog(fragment, 512, nullptr, error);
+		std::cout << "ERROR: Shader compilation error: " << error << std::endl;
     }
 
     // Attach shader objects to the program
@@ -58,7 +58,7 @@ int createShaderProgram(const char *vertex_code, const char *fragment_code) {
     glLinkProgram(program);
     glGetShaderiv(program, GL_LINK_STATUS, &success);
     if (!success) {
-		glGetProgramInfoLog(program, 512, NULL, error);
+		glGetProgramInfoLog(program, 512, nullptr, error);
 		std::cout << "ERROR: Program link error: " << error << std::endl;
     }
 
