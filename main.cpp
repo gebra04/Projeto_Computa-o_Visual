@@ -39,6 +39,11 @@ float angle_inc = 0.5f;
 /** Array for storing key status (256 ASCII keys). */
 bool keyStates[256] = {false};
 
+/** Variables for mouse control */
+int last_mouse_x = 0;
+int last_mouse_y = 0;
+bool mouse_left_down = false;
+
 /** Vertex shader. */
 const char *vertex_code = "\n"
 "#version 400 core\n"
@@ -223,6 +228,46 @@ void keyboardUp(const unsigned char key, const int x, const int y) {
 }
 
 /**
+ * Function for mouse button press.
+ *
+ * @param button Mouse button pressed.
+ * @param state Button state (pressed or released).
+ * @param x Mouse x coordinate when button pressed.
+ * @param y Mouse y coordinate when button pressed.
+ */
+void mouse(int button, int state, int x, int y) {
+    if (button == GLUT_LEFT_BUTTON) {
+        if (state == GLUT_DOWN) {
+            mouse_left_down = true;
+            last_mouse_x = x;
+            last_mouse_y = y;
+        } else if (state == GLUT_UP) {
+            mouse_left_down = false;
+        }
+    }
+}
+
+/**
+ * Function for mouse motion.
+ *
+ * @param x Mouse x coordinate when button pressed.
+ * @param y Mouse y coordinate when button pressed.
+ */
+void motion(int x, int y) {
+    if (mouse_left_down) {
+        int dx = x - last_mouse_x;
+        int dy = y - last_mouse_y;
+        angle_y += dx * 0.5f; // Sensibilidade eixo Y
+        angle_x += dy * 0.5f; // Sensibilidade eixo X
+        // Rotação no eixo Z ao arrastar na diagonal
+        angle_z += (dx - dy) * 0.25f; // Sensibilidade eixo Z
+        last_mouse_x = x;
+        last_mouse_y = y;
+        glutPostRedisplay();
+    }
+}
+
+/**
  *	Modified idle function to apply continuous rotation with multiple keys.
  */
 void idle() {
@@ -380,6 +425,8 @@ int main(int argc, char** argv) {
 		glutKeyboardFunc(keyboard);
 		glutKeyboardUpFunc(keyboardUp);
 		glutIdleFunc(idle);
+		glutMouseFunc(mouse);
+		glutMotionFunc(motion);
 
 		// Give control to GLUT, main loop that ends when the program ends.
 		glutMainLoop();
