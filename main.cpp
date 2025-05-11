@@ -8,7 +8,6 @@
 #include <glm/gtx/string_cast.hpp>
 #include "../Projeto_Computacao_Visual/lib/utils.h"
 
-/* Globals */
 /** Window width. */
 int win_width  = 800;
 /** Window height. */
@@ -21,6 +20,11 @@ unsigned int VAO;
 /** Vertex buffer object. */
 unsigned int VBO;
 
+/** Translate. */
+float translate_x = 0.0f;
+float translate_y = 0.0f;
+float translate_inc = 0.2f;
+
 /** Scale. */
 float scale = 1.0f;
 float scale_inc = 0.2f;
@@ -30,18 +34,7 @@ float angle = 0.0f;
 float angle_x = 0.0f;
 float angle_y = 0.0f;
 float angle_z = 0.0f;
-
-/** Rotation increment. */
 float angle_inc = 5.0f;
-
-float x = 0.4f;
-float x_inc = 0.01f;
-
-/** Rotation mode. */
-int mode = 1;
-
-int md = 1;
-int cond = 0;
 
 /** Vertex shader. */
 const char *vertex_code = "\n"
@@ -115,16 +108,20 @@ void display() {
 	glUseProgram(program);
 	glBindVertexArray(VAO);
 
+	// Translate matrix.
+	const glm::mat4 To = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	const glm::mat4 T = glm::translate(glm::mat4(1.0f), glm::vec3(translate_x, translate_y, 0.0f));
+
+	// Scale matrix.
+	const glm::mat4 S = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
+
 	// Rotation matrix.
 	const glm::mat4 Rx = glm::rotate(glm::mat4(1.0f), glm::radians(angle_x), glm::vec3(1.0f,0.0f,0.0f));
 	const glm::mat4 Ry = glm::rotate(glm::mat4(1.0f), glm::radians(angle_y), glm::vec3(0.0f,1.0f,0.0f));
 	const glm::mat4 Rz = glm::rotate(glm::mat4(1.0f), glm::radians(angle_z), glm::vec3(0.0f,0.0f,1.0f));
 
-	// Scale matrix.
-	const glm::mat4 S = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
-
 	// Final matrix.
-	glm::mat4 M = Rx*Ry*Rz*S;
+	glm::mat4 M = T*Rx*Ry*Rz*S*To;
 
 	// Retrieve location of transform variable in shader.
 	int loc = glGetUniformLocation(program, "model");
@@ -223,6 +220,19 @@ void keyboard(const unsigned char key, const int x, const int y) {
     		break;
     	case '-':
     		scale = scale - scale_inc;
+    		break;
+    	// Translate the hourglass.
+    	case '8':
+    		translate_y += translate_inc;
+    		break;
+    	case '5':
+    		translate_y -= translate_inc;
+    		break;
+    	case '6':
+    		translate_x += translate_inc;
+    		break;
+    	case '4':
+    		translate_x -= translate_inc;
     		break;
     }
 
