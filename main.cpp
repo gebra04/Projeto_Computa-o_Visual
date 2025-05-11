@@ -62,7 +62,7 @@ const char *vertex_code = "\n"
 "    gl_Position = projection * view * model * vec4(position, 1.0);\n"
 "    vNormal = mat3(transpose(inverse(model)))*normal;\n"
 "    vColor = color;\n"
-"	   fragPosition = vec3(model * vec4(position, 1.0));\n"
+"	 fragPosition = vec3(model * vec4(position, 1.0));\n"
 "}\0";
 
 /** Fragment shader. */
@@ -98,7 +98,7 @@ const char *fragment_code = "\n"
 "    vec3 specular = ks * spec * lightColor;\n"
 "\n"
 "    vec3 light = (ambient + diffuse + specular) * vColor;\n"
-"    fragColor = vec4(light, 0.5);\n"
+"    fragColor = vec4(light, 1.0);\n"
 "}\0";
 
 /** 
@@ -189,43 +189,41 @@ void reshape(const int width, const int height) {
 * @param x Mouse x coordinate when key pressed.
 * @param y Mouse y coordinate when key pressed.
 */
-
-void keyboard(unsigned char key, int x, int y) {
-  /* Closing a window using the keyboard. */
-	switch (key) {
-		/* Escape key.*/
-		case 27:
-			exit(0);
-		/* q key. */
+void keyboard(const unsigned char key, const int x, const int y) {
+	// Treat keyboard events.
+    switch (key) {
+    	// Close the window.
+    	case 27:
 		case 'q':
 		case 'Q':
 			glutLeaveMainLoop();
-			break;
+    		break;
+    	// Rotate the hourglass.
 		case 'w':
-			angle_x = ((angle_x-angle_inc) < 360.0f) ? angle_x-angle_inc : angle_x+angle_inc;
-		break;
+			angle_y = angle_y+angle_inc < 360.0f ? angle_y+angle_inc : 360.0-angle_y+angle_inc;
+			break;
 		case 's':
-			angle_x = ((angle_x+angle_inc) < 360.0f) ? angle_x+angle_inc : 360.0-angle_x+angle_inc;
+			angle_y = angle_y-angle_inc < 360.0f ? angle_y-angle_inc : angle_y+angle_inc;
 			break;
 		case 'a':
-			angle_y = ((angle_y-angle_inc) < 360.0f) ? angle_y-angle_inc : angle_y+angle_inc;
+			angle_x = angle_x-angle_inc < 360.0f ? angle_x-angle_inc : angle_x+angle_inc;
 			break;
 		case 'd':
-			angle_y = ((angle_y+angle_inc) < 360.0f) ? angle_y+angle_inc : 360.0-angle_y+angle_inc;
+			angle_x = angle_x+angle_inc < 360.0f ? angle_x+angle_inc : 360.0-angle_x+angle_inc;
 			break;
 		case 'z':
-			angle_z = ((angle_z-angle_inc) < 360.0f) ? angle_z-angle_inc : angle_z+angle_inc;
+			angle_z = angle_z-angle_inc < 360.0f ? angle_z-angle_inc : angle_z+angle_inc;
 			break;
 		case 'x':
-			angle_z = ((angle_z+angle_inc) < 360.0f) ? angle_z+angle_inc : 360.0-angle_z+angle_inc;
+			angle_z = angle_z+angle_inc < 360.0f ? angle_z+angle_inc : 360.0-angle_z+angle_inc;
 			break;
-		// Scale the hourglass.
-		case '+':
+    	// Scale the hourglass.
+    	case '+':
     		scale = scale + scale_inc;
     		break;
-		case '-':
-			scale = scale - scale_inc;
-			break;
+    	case '-':
+    		scale = scale - scale_inc;
+    		break;
     }
 
 	// Demand OpenGL to redraw scene (call display function).
@@ -240,57 +238,59 @@ void keyboard(unsigned char key, int x, int y) {
 void initData() {
     // Set hourglass vertices.
 	const float vertices[] = {
-		// First piramid
-		// First triangle (Cyan)
-		0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, 1.000000f, //A
-		-0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, 1.000000f,// D
-		-0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, 1.000000f,// C
-		// Second triangle (Cyan)
-		0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f,  1.000000f,//A
-		-0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.000000f,  1.000000f, // D
-		0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f,  1.000000f,//B
-		// Third triangle (Cyan)
-		0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f, -0.707107f,  0.707107f,//A
-		-0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.000000f, -0.707107f,  0.707107f, // C
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.000000f, -0.707107f,  0.707107f,// O
-		// Fourth triangle (Cyan)
-		-0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.707107f,  0.000000f,  0.707107f, // C
-		-0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f,0.707107f,  0.000000f,  0.707107f, // D
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.707107f,  0.000000f,  0.707107f,// O
-		// Fifth triangle (Cyan)
-		0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f, -0.000000f, -0.707107f, -0.707107f,//B
-		-0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f,-0.000000f, -0.707107f, -0.707107f, // D
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -0.000000f, -0.707107f, -0.707107f,// O
-		// Sixth triangle (Cyan)
-		0.4f, 0.4f, -0.4f, 0.0f, 1.0f, 1.0f, -0.707107f,  0.000000f,  0.707107f,//B
-		0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 1.0f, -0.707107f,  0.000000f,  0.707107f,//A
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -0.707107f,  0.000000f,  0.707107f,// O
+		// First pyramid.
 
-		// Second piramid
-		// First triangle (Cyan)
-		-0.4f, -0.4f,-0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.000000f, -1.000000f, //H
-		-0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.000000f, -1.000000f, //I
-		0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, -1.000000f,//F
-		// Second triangle (Cyan)
-		-0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.000000f, -1.000000f, //H
-		0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, -1.000000f,//F
-		0.4f, -0.4f, -0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.000000f, -1.000000f,//G
-		// Third triangle (Cyan)
-		-0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f,0.707107f,  0.000000f, -0.707107f, //H
-		-0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.707107f,  0.000000f, -0.707107f, //I
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.707107f,  0.000000f, -0.707107f,//O
-		// Fourth triangle (Cyan)
-		-0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f,0.000000f, -0.707107f, -0.707107f, //I
-		0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.000000f, -0.707107f, -0.707107f,//F
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.000000f, -0.707107f, -0.707107f,//O
-		// Fifth triangle (Cyan)
-		0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.707107f, -0.707107f,//G
-		-0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.707107f, -0.707107f, //H
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.707107f, -0.707107f,//O
-		// Sixth triangle (Cyan)
-		0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f, 0.707107f, 0.000000f,  0.707107, //G
-		0.4f, -0.4f, 0.4f, 0.0f, 1.0f, 1.0f, 0.707107f, 0.000000f,  0.707107, //F
-		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.707107f, 0.000000f,  0.707107//O
+		// First triangle (Red).
+	     0.4f, 0.4f, 0.4f, 1.0f, 0.0f, 0.0f, 0.000000f, 0.000000f, 1.000000f,
+	    -0.4f,-0.4f, 0.4f, 1.0f, 0.0f, 0.0f, 0.000000f, 0.000000f, 1.000000f,
+	    -0.4f, 0.4f, 0.4f, 1.0f, 0.0f, 0.0f, 0.000000f, 0.000000f, 1.000000f,
+	    // Second triangle (Green).
+	     0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 0.0f, 0.000000f, 0.000000f, 1.000000f,
+	    -0.4f,-0.4f, 0.4f, 0.0f, 1.0f, 0.0f, 0.000000f, 0.000000f, 1.000000f,
+	     0.4f,-0.4f, 0.4f, 0.0f, 1.0f, 0.0f, 0.000000f, 0.000000f, 1.000000f,
+	    // Third triangle (Blue).
+	     0.4f, 0.4f, 0.4f, 0.0f, 0.0f, 1.0f, 0.000000f,-0.707107f, 0.707107f,
+	    -0.4f, 0.4f, 0.4f, 0.0f, 0.0f, 1.0f, 0.000000f,-0.707107f, 0.707107f,
+	     0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.000000f,-0.707107f, 0.707107f,
+	    // Fourth triangle (Yellow).
+	    -0.4f, 0.4f, 0.4f, 1.0f, 1.0f, 0.0f, 0.707107f, 0.000000f, 0.707107f,
+	    -0.4f,-0.4f, 0.4f, 1.0f, 1.0f, 0.0f, 0.707107f, 0.000000f, 0.707107f,
+	     0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.707107f, 0.000000f, 0.707107f,
+	    // Fifth triangle (Cyan).
+	     0.4f,-0.4f, 0.4f, 0.0f, 1.0f, 1.0f,-0.000000f,-0.707107f,-0.707107f,
+	    -0.4f,-0.4f, 0.4f, 0.0f, 1.0f, 1.0f,-0.000000f,-0.707107f,-0.707107f,
+	     0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,-0.000000f,-0.707107f,-0.707107f,
+	    // Sixth triangle (Magenta).
+	     0.4f,-0.4f, 0.4f, 1.0f, 0.0f, 1.0f,-0.707107f, 0.000000f, 0.707107f,
+	     0.4f, 0.4f, 0.4f, 1.0f, 0.0f, 1.0f,-0.707107f, 0.000000f, 0.707107f,
+	     0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,-0.707107f, 0.000000f, 0.707107f,
+
+	    // Second pyramid.
+
+	    // First triangle (Red).
+	    -0.4f,-0.4f,-0.4f, 1.0f, 0.0f, 0.0f, 0.000000f, 0.000000f,-1.000000f,
+	    -0.4f, 0.4f,-0.4f, 1.0f, 0.0f, 0.0f, 0.000000f, 0.000000f,-1.000000f,
+	     0.4f, 0.4f,-0.4f, 1.0f, 0.0f, 0.0f, 0.000000f, 0.000000f,-1.000000f,
+	    // Second triangle (Green).
+	    -0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 0.0f, 0.000000f, 0.000000f,-1.000000f,
+	     0.4f, 0.4f,-0.4f, 0.0f, 1.0f, 0.0f, 0.000000f, 0.000000f,-1.000000f,
+	     0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 0.0f, 0.000000f, 0.000000f,-1.000000f,
+	    // Third triangle (Blue).
+	    -0.4f,-0.4f,-0.4f, 0.0f, 0.0f, 1.0f, 0.707107f, 0.000000f,-0.707107f,
+	    -0.4f, 0.4f,-0.4f, 0.0f, 0.0f, 1.0f, 0.707107f, 0.000000f,-0.707107f,
+	     0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.707107f, 0.000000f,-0.707107f,
+	    // Fourth triangle (Yellow).
+	    -0.4f, 0.4f,-0.4f, 1.0f, 1.0f, 0.0f, 0.000000f,-0.707107f,-0.707107f,
+	     0.4f, 0.4f,-0.4f, 1.0f, 1.0f, 0.0f, 0.000000f,-0.707107f,-0.707107f,
+	     0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.000000f,-0.707107f,-0.707107f,
+	    // Fifth triangle (Cyan).
+	     0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f, 0.000000f, 0.707107f,-0.707107f,
+	    -0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f, 0.000000f, 0.707107f,-0.707107f,
+	     0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.000000f, 0.707107f,-0.707107f,
+	    // Sixth triangle (Magenta).
+	     0.4f,-0.4f,-0.4f, 1.0f, 0.0f, 1.0f, 0.707107f, 0.000000f, 0.707107,
+	     0.4f, 0.4f,-0.4f, 1.0f, 0.0f, 1.0f, 0.707107f, 0.000000f, 0.707107,
+	     0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.707107f, 0.000000f, 0.707107,
 	};
     
     // Vertex array.
@@ -301,10 +301,6 @@ void initData() {
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		// Set alpha blending
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     // Set coordinate attribute.
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), nullptr);
