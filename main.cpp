@@ -1,7 +1,5 @@
 #define GLM_ENABLE_EXPERIMENTAL
 
-#include <cstdio>
-#include <cstdlib>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <glm/glm.hpp>
@@ -28,6 +26,7 @@ float angle = 0.0f;
 float angle_x = 0.0f;
 float angle_y = 0.0f;
 float angle_z = 0.0f;
+
 /** Rotation increment. */
 float angle_inc = 5.0f;
 
@@ -42,7 +41,7 @@ int cond = 0;
 
 /** Vertex shader. */
 const char *vertex_code = "\n"
-"#version 460 core\n"
+"#version 400 core\n"
 "layout (location = 0) in vec3 position;\n"
 "layout (location = 1) in vec3 color;\n"
 "layout (location = 2) in vec3 normal;\n"
@@ -64,7 +63,7 @@ const char *vertex_code = "\n"
 
 /** Fragment shader. */
 const char *fragment_code = "\n"
-"#version 460 core\n"
+"#version 400 core\n"
 "\n"
 "in vec3 vNormal;\n"
 "in vec3 vColor;\n"
@@ -104,30 +103,31 @@ const char *fragment_code = "\n"
 * A simple drawing function that only clears the color buffer.
 */
 void display() {
-	/* Set RGBA color to "paint" cleared color buffer (background color). */
+	// Clear the background with the color.
 	glClearColor(0.2, 0.3, 0.3, 1.0);
-
-	/* Clears color buffer to the RGBA defined values. */
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	// Using the program with shaders.
 	glUseProgram(program);
 	glBindVertexArray(VAO);
 
-	glm::mat4 T;
-  glm::mat4 Rx = glm::rotate(glm::mat4(1.0f), glm::radians(angle_x), glm::vec3(1.0f,0.0f,0.0f));
-  glm::mat4 Ry = glm::rotate(glm::mat4(1.0f), glm::radians(angle_y), glm::vec3(0.0f,1.0f,0.0f));
-  glm::mat4 Rz = glm::rotate(glm::mat4(1.0f), glm::radians(angle_z), glm::vec3(0.0f,0.0f,1.0f));
+	// Transformations.
+	const glm::mat4 Rx = glm::rotate(glm::mat4(1.0f), glm::radians(angle_x), glm::vec3(1.0f,0.0f,0.0f));
+	const glm::mat4 Ry = glm::rotate(glm::mat4(1.0f), glm::radians(angle_y), glm::vec3(0.0f,1.0f,0.0f));
+	const glm::mat4 Rz = glm::rotate(glm::mat4(1.0f), glm::radians(angle_z), glm::vec3(0.0f,0.0f,1.0f));
 
 	glm::mat4 M = Rx*Ry*Rz;
 
-	// Retrieve location of tranform variable in shader.
+	// Retrieve location of transform variable in shader.
 	int loc = glGetUniformLocation(program, "model");
 	glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(M));
 
+	// Set the cam location.
 	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,0.0f,-5.0f));
 	loc = glGetUniformLocation(program, "view");
 	glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(view));
 
+	// Set the projection.
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), static_cast<float>(win_width)/static_cast<float>(win_height), 0.1f, 100.0f);
  	loc = glGetUniformLocation(program, "projection");
 	glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(projection));
@@ -144,9 +144,10 @@ void display() {
 	loc = glGetUniformLocation(program, "cameraPosition");
 	glUniform3f(loc, 0.0, 0.0, 5.0);
 
+	// Drawing the hourglass.
 	glDrawArrays(GL_TRIANGLES, 0, 12*3);
 
-	/* Demand to draw to the window.*/
+	// Demand to draw to the window.
 	glutSwapBuffers();
 }
 
@@ -159,12 +160,12 @@ void display() {
 * @param height New window height.
 */
 void reshape(const int width, const int height) {
-    // Save new window size in case it may be need elsewhere (not in this program).
+    // Save new window size in case it may be needed elsewhere (not in this program).
     win_width = width;
     win_height = height;
 
     // Set the viewport (rectangle of visible area in the window).
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, win_width, win_height);
 
     // Demand OpenGL to redraw scene (call display function).
     glutPostRedisplay();
@@ -180,46 +181,36 @@ void reshape(const int width, const int height) {
 * @param x Mouse x coordinate when key pressed.
 * @param y Mouse y coordinate when key pressed.
 */
-
-void keyboard(unsigned char key, int x, int y) {
-  /* Closing a window using the keyboard. */
-    switch (key)
-    {
-      /* Escape key.*/
-      case 27:
-              exit(0);
-      /* q key. */
-      case 'q':
-      case 'Q':
-        glutLeaveMainLoop();
-      case 'w':
-        angle_y = ((angle_y+angle_inc) < 360.0f) ? angle_y+angle_inc : 360.0-angle_y+angle_inc;
-        break;
-      case 's':
-        angle_y = ((angle_y-angle_inc) < 360.0f) ? angle_y-angle_inc : angle_y+angle_inc;
-        break;
-      case 'a':
-        angle_x = ((angle_x-angle_inc) < 360.0f) ? angle_x-angle_inc : angle_x+angle_inc;
-        break;
-      case 'd':
-        angle_x = ((angle_x+angle_inc) < 360.0f) ? angle_x+angle_inc : 360.0-angle_x+angle_inc;
-        break;
-      case 'z':
-        angle_z = ((angle_z-angle_inc) < 360.0f) ? angle_z-angle_inc : angle_z+angle_inc;
-        break;
-      case 'x':
-        angle_z = ((angle_z+angle_inc) < 360.0f) ? angle_z+angle_inc : 360.0-angle_z+angle_inc;
-        break;
-                
+void keyboard(const unsigned char key, const int x, const int y) {
+	// Closing a window using the keyboard.
+    switch (key) {
+    	// Escape key and q key.
+    	case 27:
+		case 'q':
+		case 'Q':
+			glutLeaveMainLoop();
+    		break;
+		case 'w':
+			angle_y = angle_y+angle_inc < 360.0f ? angle_y+angle_inc : 360.0-angle_y+angle_inc;
+			break;
+		case 's':
+			angle_y = angle_y-angle_inc < 360.0f ? angle_y-angle_inc : angle_y+angle_inc;
+			break;
+		case 'a':
+			angle_x = angle_x-angle_inc < 360.0f ? angle_x-angle_inc : angle_x+angle_inc;
+			break;
+		case 'd':
+			angle_x = angle_x+angle_inc < 360.0f ? angle_x+angle_inc : 360.0-angle_x+angle_inc;
+			break;
+		case 'z':
+			angle_z = angle_z-angle_inc < 360.0f ? angle_z-angle_inc : angle_z+angle_inc;
+			break;
+		case 'x':
+			angle_z = angle_z+angle_inc < 360.0f ? angle_z+angle_inc : 360.0-angle_z+angle_inc;
+			break;
     }
-}
 
-/**
- * Idle function.
- *
- * Called continuously.
- */
-void idle() {
+	// Demand OpenGL to redraw scene (call display function).
 	glutPostRedisplay();
 }
 
@@ -229,87 +220,93 @@ void idle() {
  * Defines the coordinates for vertices, creates the arrays for OpenGL.
  */
 void initData() {
-    // Set triangle vertices.
+    // Set hourglass vertices.
 	const float vertices[] = {
-		// First piramid
-		// First triangle (Red)
-	    0.4f, 0.4f, 0.4f, 1.0f, 0.0f, 0.0f, 0.000000f,  0.000000f, 1.000000f, //A
-	    -0.4f,-0.4f, 0.4f, 1.0f, 0.0f, 0.0f, 0.000000f,  0.000000f, 1.000000f,// D
-	    -0.4f, 0.4f, 0.4f, 1.0f, 0.0f, 0.0f, 0.000000f,  0.000000f, 1.000000f,// C
-	    // Second triangle (Green)
-	    0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 0.0f, 0.000000f,  0.000000f,  1.000000f,//A
-	    -0.4f,-0.4f, 0.4f, 0.0f, 1.0f, 0.0f,0.000000f,  0.000000f,  1.000000f, // D
-	    0.4f,-0.4f, 0.4f, 0.0f, 1.0f, 0.0f, 0.000000f,  0.000000f,  1.000000f,//B
-	    // Third triangle (Blue)
-	    0.4f, 0.4f, 0.4f, 0.0f, 0.0f, 1.0f, 0.000000f, -0.707107f,  0.707107f,//A
-	    -0.4f, 0.4f, 0.4f, 0.0f, 0.0f, 1.0f,0.000000f, -0.707107f,  0.707107f, // C
-	    0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.000000f, -0.707107f,  0.707107f,// O
-	    // Fourth triangle (Yellow)
-	    -0.4f, 0.4f, 0.4f, 1.0f, 1.0f, 0.0f,0.707107f,  0.000000f,  0.707107f, // C
-	    -0.4f,-0.4f, 0.4f, 1.0f, 1.0f, 0.0f,0.707107f,  0.000000f,  0.707107f, // D
-	    0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.707107f,  0.000000f,  0.707107f,// O
-	    // Fifth triangle (Cyan)
-	    0.4f,-0.4f, 0.4f, 0.0f, 1.0f, 1.0f, -0.000000f, -0.707107f, -0.707107f,//B
-	    -0.4f,-0.4f, 0.4f, 0.0f, 1.0f, 1.0f,-0.000000f, -0.707107f, -0.707107f, // D
-	    0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -0.000000f, -0.707107f, -0.707107f,// O
-	    // Sixth triangle (Magenta)
-	    0.4f,-0.4f, 0.4f, 1.0f, 0.0f, 1.0f, -0.707107f,  0.000000f,  0.707107f,//B
-	    0.4f, 0.4f, 0.4f, 1.0f, 0.0f, 1.0f, -0.707107f,  0.000000f,  0.707107f,//A
-	    0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, -0.707107f,  0.000000f,  0.707107f,// O
+		// First pyramid.
 
-	    // Second piramid
-	    // First triangle (Red)
-	    -0.4f,-0.4f,-0.4f, 1.0f, 0.0f, 0.0f,0.000000f,  0.000000f, -1.000000f, //H
-	    -0.4f, 0.4f,-0.4f, 1.0f, 0.0f, 0.0f,0.000000f,  0.000000f, -1.000000f, //I
-	    0.4f, 0.4f,-0.4f, 1.0f, 0.0f, 0.0f, 0.000000f,  0.000000f, -1.000000f,//F
-	    // Second triangle (Green)
-	    -0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 0.0f,0.000000f,  0.000000f, -1.000000f, //H
-	    0.4f, 0.4f,-0.4f, 0.0f, 1.0f, 0.0f, 0.000000f,  0.000000f, -1.000000f,//F
-	    0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 0.0f, 0.000000f,  0.000000f, -1.000000f,//G
-	    // Third triangle (Blue)
-	    -0.4f,-0.4f,-0.4f, 0.0f, 0.0f, 1.0f,0.707107f,  0.000000f, -0.707107f, //H
-	    -0.4f, 0.4f,-0.4f, 0.0f, 0.0f, 1.0f,0.707107f,  0.000000f, -0.707107f, //I
-	    0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.707107f,  0.000000f, -0.707107f,//O
-	    // Fourth triangle (Yellow)
-	    -0.4f, 0.4f,-0.4f, 1.0f, 1.0f, 0.0f,0.000000f, -0.707107f, -0.707107f, //I
-	    0.4f, 0.4f,-0.4f, 1.0f, 1.0f, 0.0f, 0.000000f, -0.707107f, -0.707107f,//F
-	    0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.000000f, -0.707107f, -0.707107f,//O
-	    // Fifth triangle (Cyan)
-	    0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.707107f, -0.707107f,//G
-	    -0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f,0.000000f,  0.707107f, -0.707107f, //H
-	    0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.000000f,  0.707107f, -0.707107f,//O
-	    // Sixth triangle (Magenta)
-	    0.4f,-0.4f,-0.4f, 1.0f, 0.0f, 1.0f, 0.707107f, 0.000000f,  0.707107, //G
-	    0.4f, 0.4f,-0.4f, 1.0f, 0.0f, 1.0f, 0.707107f, 0.000000f,  0.707107, //F
-	    0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.707107f, 0.000000f,  0.707107//O
+		// First triangle (Red).
+	     0.4f, 0.4f, 0.4f, 1.0f, 0.0f, 0.0f, 0.000000f, 0.000000f, 1.000000f,
+	    -0.4f,-0.4f, 0.4f, 1.0f, 0.0f, 0.0f, 0.000000f, 0.000000f, 1.000000f,
+	    -0.4f, 0.4f, 0.4f, 1.0f, 0.0f, 0.0f, 0.000000f, 0.000000f, 1.000000f,
+	    // Second triangle (Green).
+	     0.4f, 0.4f, 0.4f, 0.0f, 1.0f, 0.0f, 0.000000f, 0.000000f, 1.000000f,
+	    -0.4f,-0.4f, 0.4f, 0.0f, 1.0f, 0.0f, 0.000000f, 0.000000f, 1.000000f,
+	     0.4f,-0.4f, 0.4f, 0.0f, 1.0f, 0.0f, 0.000000f, 0.000000f, 1.000000f,
+	    // Third triangle (Blue).
+	     0.4f, 0.4f, 0.4f, 0.0f, 0.0f, 1.0f, 0.000000f,-0.707107f, 0.707107f,
+	    -0.4f, 0.4f, 0.4f, 0.0f, 0.0f, 1.0f, 0.000000f,-0.707107f, 0.707107f,
+	     0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.000000f,-0.707107f, 0.707107f,
+	    // Fourth triangle (Yellow).
+	    -0.4f, 0.4f, 0.4f, 1.0f, 1.0f, 0.0f, 0.707107f, 0.000000f, 0.707107f,
+	    -0.4f,-0.4f, 0.4f, 1.0f, 1.0f, 0.0f, 0.707107f, 0.000000f, 0.707107f,
+	     0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.707107f, 0.000000f, 0.707107f,
+	    // Fifth triangle (Cyan).
+	     0.4f,-0.4f, 0.4f, 0.0f, 1.0f, 1.0f,-0.000000f,-0.707107f,-0.707107f,
+	    -0.4f,-0.4f, 0.4f, 0.0f, 1.0f, 1.0f,-0.000000f,-0.707107f,-0.707107f,
+	     0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,-0.000000f,-0.707107f,-0.707107f,
+	    // Sixth triangle (Magenta).
+	     0.4f,-0.4f, 0.4f, 1.0f, 0.0f, 1.0f,-0.707107f, 0.000000f, 0.707107f,
+	     0.4f, 0.4f, 0.4f, 1.0f, 0.0f, 1.0f,-0.707107f, 0.000000f, 0.707107f,
+	     0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,-0.707107f, 0.000000f, 0.707107f,
+
+	    // Second pyramid.
+
+	    // First triangle (Red).
+	    -0.4f,-0.4f,-0.4f, 1.0f, 0.0f, 0.0f, 0.000000f, 0.000000f,-1.000000f,
+	    -0.4f, 0.4f,-0.4f, 1.0f, 0.0f, 0.0f, 0.000000f, 0.000000f,-1.000000f,
+	     0.4f, 0.4f,-0.4f, 1.0f, 0.0f, 0.0f, 0.000000f, 0.000000f,-1.000000f,
+	    // Second triangle (Green).
+	    -0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 0.0f, 0.000000f, 0.000000f,-1.000000f,
+	     0.4f, 0.4f,-0.4f, 0.0f, 1.0f, 0.0f, 0.000000f, 0.000000f,-1.000000f,
+	     0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 0.0f, 0.000000f, 0.000000f,-1.000000f,
+	    // Third triangle (Blue).
+	    -0.4f,-0.4f,-0.4f, 0.0f, 0.0f, 1.0f, 0.707107f, 0.000000f,-0.707107f,
+	    -0.4f, 0.4f,-0.4f, 0.0f, 0.0f, 1.0f, 0.707107f, 0.000000f,-0.707107f,
+	     0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.707107f, 0.000000f,-0.707107f,
+	    // Fourth triangle (Yellow).
+	    -0.4f, 0.4f,-0.4f, 1.0f, 1.0f, 0.0f, 0.000000f,-0.707107f,-0.707107f,
+	     0.4f, 0.4f,-0.4f, 1.0f, 1.0f, 0.0f, 0.000000f,-0.707107f,-0.707107f,
+	     0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.000000f,-0.707107f,-0.707107f,
+	    // Fifth triangle (Cyan).
+	     0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f, 0.000000f, 0.707107f,-0.707107f,
+	    -0.4f,-0.4f,-0.4f, 0.0f, 1.0f, 1.0f, 0.000000f, 0.707107f,-0.707107f,
+	     0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.000000f, 0.707107f,-0.707107f,
+	    // Sixth triangle (Magenta).
+	     0.4f,-0.4f,-0.4f, 1.0f, 0.0f, 1.0f, 0.707107f, 0.000000f, 0.707107,
+	     0.4f, 0.4f,-0.4f, 1.0f, 0.0f, 1.0f, 0.707107f, 0.000000f, 0.707107,
+	     0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.707107f, 0.000000f, 0.707107,
 	};
     
     // Vertex array.
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
-    // Vertex buffer
+    // Vertex buffer.
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     
-    // Set attributes.ph  
+    // Set coordinate attribute.
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
-    
+
+	// Set color attribute.
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    // Normal vector
+    // Set normal attribute.
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), reinterpret_cast<void *>(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
+	// Enable depth for 3D.
+	glEnable(GL_DEPTH_TEST);
+
     // Unbind Vertex Array Object.
     glBindVertexArray(0);
-    glEnable(GL_DEPTH_TEST);
 }
 
-/** Create program (shaders).
+/**
+ * Create program (shaders).
  * 
  * Compile shaders and create the program.
  */
@@ -319,38 +316,31 @@ void initShaders() {
 }
 
 int main(int argc, char** argv) {
-	/* Init glut (always called). */
+	// Init glut (always called).
 	glutInit(&argc, argv);
 
-	/* Set OpenGL context version to use "Modern OpenGL" */
-	glutInitContextVersion(4, 6);
+	// Set OpenGL context version to use "Modern OpenGL".
+	glutInitContextVersion(4, 0);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
 
-	/* Set glut to use double buffering with RGBA color attributes. */
+	// Creating window with double-buffering, RGBA (RGB with alpha), and depth for 3D figures.
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-
-	/* Set the size of the window. */
 	glutInitWindowSize(win_width,win_height);
+	glutCreateWindow("CMCO05 - hourglass");
 
-	/* Create window. */
+	// Init GLEW, an extension loading library for different operating systems.
 	glewExperimental = GL_TRUE;
-	glutCreateWindow(argv[0]);
-
-	/* Init GLEW, a extension loading library for different operating systems. */
 	glewInit();
 
-	// Init vertex data for the triangle.
+	// Init vertex data and shaders.
 	initData();
-
-	// Create shaders.
 	initShaders();  
   
-	/* Bind callback functions. */
+	// Bind callback functions.
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
-	glutIdleFunc(idle);
 
-	/* Give control to GLUT, main loop that ends when the program ends. */
+	// Give control to GLUT, main loop that ends when the program ends.
 	glutMainLoop();
 }
