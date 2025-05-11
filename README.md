@@ -1,6 +1,6 @@
 # Projeto_Computação_Visual
 
-**Autores:** [gebra04][github.com/gebra04], [HenriUz][github.com/HenriUz], [Jooaomarcelo][github.com/Jooaomarcelo], [ValimD][github.com/ValimD].
+**Autores:** [gebra04](github.com/gebra04), [HenriUz](github.com/HenriUz), [Jooaomarcelo](github.com/Jooaomarcelo), [ValimD](github.com/ValimD).
 
 ---
 
