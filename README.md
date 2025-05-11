@@ -54,12 +54,14 @@ Inicie o programa com:
 * **A / D:** mover para esquerda/direita no eixo X
 * **Z / X:** mover para frente/trás no eixo Z
 * **- / +:** zoom in/out
+* **4 / 6:** mover a câmera esqueda/direita
+* **8 / 2:** mover a câmera frente/trás
 
 ## Ilustração
 
 Insira aqui uma captura de tela ou GIF da ampulheta em funcionamento:
 
-`[Espaço reservado para imagem]`
+``
 
 ## Licença
 
