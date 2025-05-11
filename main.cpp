@@ -21,6 +21,10 @@ unsigned int VAO;
 /** Vertex buffer object. */
 unsigned int VBO;
 
+/** Scale. */
+float scale = 1.0f;
+float scale_inc = 0.2f;
+
 /** Rotation angle. */
 float angle = 0.0f;
 float angle_x = 0.0f;
@@ -107,16 +111,20 @@ void display() {
 	glClearColor(0.2, 0.3, 0.3, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Using the program with shaders.
+	// Use the program with shaders.
 	glUseProgram(program);
 	glBindVertexArray(VAO);
 
-	// Transformations.
+	// Rotation matrix.
 	const glm::mat4 Rx = glm::rotate(glm::mat4(1.0f), glm::radians(angle_x), glm::vec3(1.0f,0.0f,0.0f));
 	const glm::mat4 Ry = glm::rotate(glm::mat4(1.0f), glm::radians(angle_y), glm::vec3(0.0f,1.0f,0.0f));
 	const glm::mat4 Rz = glm::rotate(glm::mat4(1.0f), glm::radians(angle_z), glm::vec3(0.0f,0.0f,1.0f));
 
-	glm::mat4 M = Rx*Ry*Rz;
+	// Scale matrix.
+	const glm::mat4 S = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
+
+	// Final matrix.
+	glm::mat4 M = Rx*Ry*Rz*S;
 
 	// Retrieve location of transform variable in shader.
 	int loc = glGetUniformLocation(program, "model");
@@ -144,7 +152,7 @@ void display() {
 	loc = glGetUniformLocation(program, "cameraPosition");
 	glUniform3f(loc, 0.0, 0.0, 5.0);
 
-	// Drawing the hourglass.
+	// Draw the hourglass.
 	glDrawArrays(GL_TRIANGLES, 0, 12*3);
 
 	// Demand to draw to the window.
@@ -160,7 +168,7 @@ void display() {
 * @param height New window height.
 */
 void reshape(const int width, const int height) {
-    // Save new window size in case it may be needed elsewhere (not in this program).
+    // Save new window size.
     win_width = width;
     win_height = height;
 
@@ -211,7 +219,15 @@ void keyboard(unsigned char key, int x, int y) {
 		case 'x':
 			angle_z = ((angle_z+angle_inc) < 360.0f) ? angle_z+angle_inc : 360.0-angle_z+angle_inc;
 			break;
-	}
+		// Scale the hourglass.
+		case '+':
+    		scale = scale + scale_inc;
+    		break;
+		case '-':
+			scale = scale - scale_inc;
+			break;
+    }
+
 	// Demand OpenGL to redraw scene (call display function).
 	glutPostRedisplay();
 }
@@ -327,7 +343,7 @@ int main(int argc, char** argv) {
 	glutInitContextVersion(4, 0);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
 
-	// Creating window with double-buffering, RGBA (RGB with alpha), and depth for 3D figures.
+	// Create window with double-buffering, RGBA (RGB with alpha), and depth for 3D figures.
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(win_width,win_height);
 	glutCreateWindow("CMCO05 - hourglass");
