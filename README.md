@@ -53,6 +53,7 @@ Inicie o programa com:
 * **W / S:** mover para cima/baixo no eixo Y
 * **A / D:** mover para esquerda/direita no eixo X
 * **Z / X:** mover para frente/trás no eixo Z
+* **- / +:** zoom in/out
 
 ## Ilustração
 
