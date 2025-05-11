@@ -56,6 +56,7 @@ Inicie o programa com:
 * **- / +:** zoom in/out
 * **4 / 6:** mover a câmera esqueda/direita
 * **8 / 2:** mover a câmera frente/trás
+* **Mouse:** mover para cima/baixo no eixo Y e mover para a esquerda/direita no eixo X
 
 ## Ilustração
 
