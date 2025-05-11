@@ -32,7 +32,7 @@ float angle_y = 0.0f;
 float angle_z = 0.0f;
 
 /** Rotation increment. */
-float angle_inc = 5.0f;
+float angle_inc = 0.5f;
 
 float x = 0.4f;
 float x_inc = 0.01f;
@@ -42,6 +42,9 @@ int mode = 1;
 
 int md = 1;
 int cond = 0;
+
+// Array para armazenar o estado das teclas (256 teclas ASCII)
+bool keyStates[256] = {false};
 
 /** Vertex shader. */
 const char *vertex_code = "\n"
@@ -152,8 +155,15 @@ void display() {
 	loc = glGetUniformLocation(program, "cameraPosition");
 	glUniform3f(loc, 0.0, 0.0, 5.0);
 
+	// Disable depth test for the hourglass transparent effect.
+	glDepthMask(GL_FALSE);
+
 	// Draw the hourglass.
 	glDrawArrays(GL_TRIANGLES, 0, 12*3);
+
+	// Restore depth test.
+	glDepthMask(GL_TRUE);
+	// glDisable(GL_BLEND);
 
 	// Demand to draw to the window.
 	glutSwapBuffers();
@@ -191,45 +201,39 @@ void reshape(const int width, const int height) {
 */
 
 void keyboard(unsigned char key, int x, int y) {
-  /* Closing a window using the keyboard. */
-	switch (key) {
-		/* Escape key.*/
-		case 27:
-			exit(0);
-		/* q key. */
-		case 'q':
-		case 'Q':
-			glutLeaveMainLoop();
-			break;
-		case 'w':
-			angle_x = ((angle_x-angle_inc) < 360.0f) ? angle_x-angle_inc : angle_x+angle_inc;
-		break;
-		case 's':
-			angle_x = ((angle_x+angle_inc) < 360.0f) ? angle_x+angle_inc : 360.0-angle_x+angle_inc;
-			break;
-		case 'a':
-			angle_y = ((angle_y-angle_inc) < 360.0f) ? angle_y-angle_inc : angle_y+angle_inc;
-			break;
-		case 'd':
-			angle_y = ((angle_y+angle_inc) < 360.0f) ? angle_y+angle_inc : 360.0-angle_y+angle_inc;
-			break;
-		case 'z':
-			angle_z = ((angle_z-angle_inc) < 360.0f) ? angle_z-angle_inc : angle_z+angle_inc;
-			break;
-		case 'x':
-			angle_z = ((angle_z+angle_inc) < 360.0f) ? angle_z+angle_inc : 360.0-angle_z+angle_inc;
-			break;
-		// Scale the hourglass.
-		case '+':
-    		scale = scale + scale_inc;
-    		break;
-		case '-':
-			scale = scale - scale_inc;
-			break;
+    keyStates[key] = true;
+    // Teclas que não dependem de "segurar" continuam funcionando normalmente
+    switch (key) {
+        case 27: // ESC
+            exit(0);
+        case 'q':
+        case 'Q':
+            glutLeaveMainLoop();
+            break;
+        case '+':
+            scale = scale + scale_inc;
+            break;
+        case '-':
+            scale = scale - scale_inc;
+            break;
     }
+    glutPostRedisplay();
+}
 
-	// Demand OpenGL to redraw scene (call display function).
-	glutPostRedisplay();
+// Função para tratar liberação de teclas
+void keyboardUp(unsigned char key, int x, int y) {
+    keyStates[key] = false;
+}
+
+// Função idle modificada para aplicar rotação contínua com múltiplas teclas
+void idle() {
+    if (keyStates['w']) angle_x = ((angle_x - angle_inc) < 360.0f) ? angle_x - angle_inc : angle_x + angle_inc;
+    if (keyStates['s']) angle_x = ((angle_x + angle_inc) < 360.0f) ? angle_x + angle_inc : 360.0-angle_x + angle_inc;
+    if (keyStates['a']) angle_y = ((angle_y - angle_inc) < 360.0f) ? angle_y - angle_inc : angle_y + angle_inc;
+    if (keyStates['d']) angle_y = ((angle_y + angle_inc) < 360.0f) ? angle_y + angle_inc : 360.0-angle_y + angle_inc;
+    if (keyStates['z']) angle_z = ((angle_z - angle_inc) < 360.0f) ? angle_z - angle_inc : angle_z + angle_inc;
+    if (keyStates['x']) angle_z = ((angle_z + angle_inc) < 360.0f) ? angle_z + angle_inc : 360.0-angle_z + angle_inc;
+    glutPostRedisplay();
 }
 
 /**
@@ -360,6 +364,8 @@ int main(int argc, char** argv) {
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
+	glutKeyboardUpFunc(keyboardUp);
+	glutIdleFunc(idle);
 
 	// Give control to GLUT, main loop that ends when the program ends.
 	glutMainLoop();
