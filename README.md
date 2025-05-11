@@ -14,10 +14,11 @@ A computação visual em 3D é essencial em diversas áreas como jogos, simulaç
 ```
 
 projeto/
-├── main.cpp
+├── images/
 ├── lib/
 │   ├── utils.cpp
 │   └── utils.h
+├── main.cpp
 └── Makefile
 
 ````
@@ -60,5 +61,4 @@ Inicie o programa com:
 
 ## Ilustração
 
-
-![Imagem Ampulheta]([images/Screenshot from 2025-05-11 12-48-41.png](https://github.com/gebra04/Projeto_Computacao_Visual/blob/main/images/Screenshot%20from%202025-05-11%2012-48-41.png))
+![Imagem Ampulheta](https://github.com/gebra04/Projeto_Computacao_Visual/blob/main/images/Screenshot%20from%202025-05-11%2012-48-41.png)
