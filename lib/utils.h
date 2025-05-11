@@ -1,3 +1,6 @@
+#ifndef UTILS_H
+#define UTILS_H
+
 /**
  * @file utils.h
  * Util functions.
@@ -6,11 +9,6 @@
  *
  * @author Ricardo Dutra da Silva
  */
-
-#include <iostream>
-#include <GL/glew.h>
-#include <GL/freeglut.h>
-
 
 /** 
  * Create program.
@@ -21,5 +19,7 @@
  * @param fragment_code String with code for fragment shader.
  * @return Compiled program.
  */
-int createShaderProgram(const char *, const char *);
 
+int createShaderProgram(const char *vertex_code, const char *fragment_code);
+
+#endif
