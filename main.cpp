@@ -117,7 +117,7 @@ void display() {
 	glBindVertexArray(VAO);
 
 	// Translate matrix.
-	constexpr glm::mat4 To = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	const glm::mat4 To = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 	const glm::mat4 T = glm::translate(glm::mat4(1.0f), glm::vec3(translate_x, translate_y, 0.0f));
 
 	// Scale matrix.
